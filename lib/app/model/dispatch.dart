@@ -7,8 +7,9 @@ class Dispatch {
   String? requestName;
   String? requestEmail;
   String? requestPhoneNumber;
-  String? requestPartnerType;
+  String? requestType;
   List? requestDetails;
+  String? requestInfo;
   String? dispatchStatus;
   String? dispatchInfo;
   String? pickupAddress;
@@ -34,8 +35,9 @@ class Dispatch {
         this.requestName,
         this.requestEmail,
         this.requestPhoneNumber,
-        this.requestPartnerType,
+        this.requestType,
         this.requestDetails,
+        this.requestInfo,
         this.dispatchStatus,
         this.dispatchInfo,
         this.pickupAddress,
@@ -59,8 +61,9 @@ class Dispatch {
     requestName = json['requestName'];
     requestEmail = json['requestEmail'];
     requestPhoneNumber = json['requestPhoneNumber'];
-    requestPartnerType = json['requestPartnerType'];
+    requestType = json['requestType'];
     requestDetails = json['requestDetails'] as List?;
+    requestInfo = json['requestInfo'];
     dispatchStatus = json['dispatchStatus'];
     dispatchInfo = json['dispatchInfo'];
     pickupAddress = json['pickupAddress'];
@@ -86,8 +89,9 @@ class Dispatch {
     data['request_name'] = requestName ?? '';
     data['request_email'] = requestEmail ?? '';
     data['request_phone_number'] = requestPhoneNumber ?? '';
-    data['request_partner_type'] = requestPartnerType ?? '';
+    data['request_type'] = requestType ?? '';
     data['request_details'] = requestDetails ?? '';
+    data['request_info'] = requestInfo ?? '';
     data['dispatch_status'] = dispatchStatus ?? '';
     data['dispatch_info'] = dispatchInfo ?? '';
     data['pickup_address'] = pickupAddress ?? '';

@@ -13,11 +13,16 @@ class BaseController extends GetxController {
   static List laboratories = [];
   static List testOrders = [];
   static List testPrices = [];
+  static List areaLists = [];
   static double totalCost = 0;
   static Map<String, dynamic> selectedLab = {};
   static Map<String, dynamic> selectedAddress = {};
   static String? unpaidID;
+  static String? requestType;
+  static String? requestInfo = '';
   static List notifications = [];
+  static List specimens = [];
+
 
   static List departments = [];
   static List tickets = [];
@@ -25,6 +30,7 @@ class BaseController extends GetxController {
   static List assignedDipatches = [];
   static Map<String, dynamic> selectedTicket = {} ;
   static Map<String, dynamic> assignedPhlebotomist = {} ;
+  static Map<String, dynamic> logistics = {} ;
 
 
   static RegExp emailRegex = RegExp(

@@ -2,6 +2,7 @@
 
 
 class Test {
+  String? specimen;
   String? name;
   String? noOfBottles;
   String? moreInfo;
@@ -10,6 +11,7 @@ class Test {
 
   Test(
       {
+        this.specimen,
         this.name,
         this.noOfBottles,
         this.moreInfo,
@@ -18,6 +20,7 @@ class Test {
       });
 
   Test.fromJson(Map<String, String> json) {
+    specimen = json['specimen'];
     name = json['name'];
     noOfBottles = json['noOfBottles'];
     moreInfo = json['moreInfo'];
@@ -27,6 +30,7 @@ class Test {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['specimen'] = specimen ?? '';
     data['name'] = name ?? '';
     data['noOfBottles'] = noOfBottles ?? '';
     data['moreInfo'] = moreInfo ?? '';

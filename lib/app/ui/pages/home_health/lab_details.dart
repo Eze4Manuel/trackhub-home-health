@@ -1,26 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:trackhub_home_health/app/controller/base_controller.dart';
+import 'package:trackhub_home_health/app/controller/dashboard_controller.dart';
 import 'package:trackhub_home_health/app/ui/pages/payment/card_payment.dart';
+import 'package:trackhub_home_health/app/ui/pages/requests/home_health_request.dart';
+import 'package:trackhub_home_health/app/ui/pages/requests/request_one.dart';
 import 'package:trackhub_home_health/app/ui/theme/app_colors.dart';
 import 'package:trackhub_home_health/app/utils/device_utils.dart';
 
 class LabDetails extends StatefulWidget {
-  const LabDetails({Key? key}) : super(key: key);
+  int index;
+  LabDetails({required this.index, Key? key}) : super(key: key);
 
   @override
   State<LabDetails> createState() => _LabDetailsState();
 }
 
 class _LabDetailsState extends State<LabDetails> {
-  String _selectedValue = 'select gender';
-  List<String> listOfValue = ['select gender', 'male', 'female'];
 
   final RoundedLoadingButtonController _btnController =
       RoundedLoadingButtonController();
   late PanelController specimenController;
   late PanelController homeHealthController;
-
+  final DashboardController dashboardController =
+  Get.put(DashboardController());
+  bool loading = false;
+  List tests_price = [];
 
   @override
   void initState() {
@@ -34,33 +41,43 @@ class _LabDetailsState extends State<LabDetails> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
           child: Builder(
-        builder: (context) => Stack(
+            builder: (context) => Stack(
           children: [
             Container(
               padding: EdgeInsets.symmetric(
-                  horizontal: DeviceUtils.getScaledWidth(context, scale: 0.04),
                   vertical: DeviceUtils.getScaledHeight(context, scale: 0.01)),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Align(
+                    SizedBox(
+                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                    ),
+                    Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Back',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            fontFamily: 'Montserrat Bold',
-                            color: AppColors.appColor0),
-                        textAlign: TextAlign.left,
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.pop(context);
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: DeviceUtils.getScaledWidth(context, scale: 0.04),
+                          ),
+                          child: const Text(
+                            'Back',
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
+                                fontFamily: 'Montserrat Bold',
+                                color: AppColors.appColor0),
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -71,19 +88,38 @@ class _LabDetailsState extends State<LabDetails> {
                         alignment: Alignment.center,
                         children: [
                           Container(
-                            width:
-                                DeviceUtils.getScaledWidth(context, scale: 1),
-                            height: DeviceUtils.getScaledHeight(context,
-                                scale: 0.25),
-                            decoration: const BoxDecoration(
-                              color: AppColors.appPrimaryColor,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20)),
-                              image: DecorationImage(
-                                  image: AssetImage('assets/images/lab1.jpg'),
-                                  fit: BoxFit.cover),
-                            ),
+                            width: DeviceUtils.getScaledWidth(
+                                context,
+                                scale: 1),
+                            height:
+                            DeviceUtils.getScaledHeight(
+                                context,
+                                scale: 0.26),
+                            decoration: BoxDecoration(
+                                color: AppColors
+                                    .tertiaryColor,
+
+                                image: BaseController
+                                    .laboratories[
+                                widget.index]
+                                ['image_url'] ==
+                                    null || BaseController
+                                    .laboratories[
+                                widget.index]
+                                ['image_url'].toString().isEmpty
+                                    ? const DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/lab1.jpg',
+                                    ),
+                                    fit: BoxFit.cover)
+                                    : DecorationImage(
+                                    image: NetworkImage(
+                                        BaseController
+                                            .laboratories[
+                                        widget.index][
+                                        'image_url'] ?? ''),
+                                    fit: BoxFit.cover
+                                )),
                           ),
                         ],
                       ),
@@ -91,269 +127,264 @@ class _LabDetailsState extends State<LabDetails> {
                     SizedBox(
                       height: DeviceUtils.getScaledHeight(context, scale: 0.03),
                     ),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Ormeprazole Lab Intl',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            fontFamily: 'Montserrat Bold',
-                            color: AppColors.appColor0),
+
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: DeviceUtils.getScaledWidth(context, scale: 0.04),
                       ),
-                    ),
-                    Row(
-                      children: const [
-                        Text(
-                          'Wuse - Abuja',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 14,
-                              fontFamily: 'Montserrat Bold',
-                              color: AppColors.appColor3),
-                          textAlign: TextAlign.left,
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Icon(
-                          Icons.star,
-                          color: AppColors.appPrimaryColor,
-                          size: 15,
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          '4.5 User Rating',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 13,
-                              fontFamily: 'Montserrat Bold',
-                              color: AppColors.appPrimaryColor),
-                          textAlign: TextAlign.left,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.03),
-                    ),
-                    const Text(
-                      'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy '
-                      'eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. '
-                      'At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren,'
-                      ' no sea takimata sanctus est Lorem ipsum dolor sit amet.',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 13,
-                          fontFamily: 'Montserrat Bold',
-                          color: AppColors.appColor3),
-                      textAlign: TextAlign.left,
-                    ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.03),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Request Tests',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 16,
-                                fontFamily: 'Montserrat Bold',
-                                color: AppColors.appColor0),
-                            textAlign: TextAlign.left,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            specimenController.open();
-                          },
-                          child: const Align(
-                            alignment: Alignment.centerRight,
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
                             child: Text(
-                              'View All Tests',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 13,
-                                  fontFamily: 'Montserrat ExtraBold',
-                                  color: AppColors.appPrimaryColor),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.whiteColor,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: DropdownButtonFormField(
-                        value: _selectedValue,
-                        focusColor: AppColors.whiteColor,
-                        icon: const Icon(Icons.keyboard_arrow_down_outlined),
-                        decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.fromLTRB(
-                                10.0, 10.0, 10.0, 10.0),
-                            hintStyle: const TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                fontFamily: 'Montserrat Regular',
-                                color: AppColors.appColor0),
-                            counterText: "",
-                            border: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                    width: 0, color: AppColors.whiteColor),
-                                borderRadius: BorderRadius.circular(10)),
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                    width: 0, color: AppColors.whiteColor),
-                                borderRadius: BorderRadius.circular(10)),
-                            focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                    color: Colors.white, width: 0),
-                                borderRadius: BorderRadius.circular(10.0))),
-                        hint: const Text(
-                          '',
-                        ),
-                        isExpanded: true,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedValue = value.toString();
-                          });
-                        },
-                        onSaved: (value) {
-                          setState(() {
-                            _selectedValue = value.toString();
-                          });
-                        },
-                        items: listOfValue.map((String val) {
-                          return DropdownMenuItem(
-                            value: val,
-                            child: Text(
-                              val,
+                              BaseController.laboratories[widget.index]['company_name'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  fontFamily: 'Montserrat Bold',
+                                  fontSize: 20,
+                                  fontFamily: 'Montserrat ExtraBold',
                                   color: AppColors.appColor0),
                             ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: AppColors.whiteColor,
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.medication,
-                            color: AppColors.appPrimaryColor,
                           ),
                           SizedBox(
-                            width: DeviceUtils.getScaledWidth(context,
-                                scale: 0.03),
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.02),
                           ),
-                          const Text(
-                            "Full Blood Count",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                fontFamily: 'Montserrat ExtraBold',
-                                color: AppColors.appColor3),
-                            textAlign: TextAlign.left,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.01),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: AppColors.whiteColor,
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.medication,
-                            color: AppColors.appPrimaryColor,
-                          ),
-                          SizedBox(
-                            width: DeviceUtils.getScaledWidth(context,
-                                scale: 0.03),
-                          ),
-                          const Text(
-                            "Malaria Test",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 14,
-                                fontFamily: 'Montserrat ExtraBold',
-                                color: AppColors.appColor3),
-                            textAlign: TextAlign.left,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
-                    ),
-                    RoundedLoadingButton(
-                        controller: _btnController,
-                        height: 45,
-                        borderRadius: 16,
-                        color: AppColors.appPrimaryColor,
-                        successColor: AppColors.appPrimaryColor,
-                        child: const Center(
-                          child: Text(
-                            'Proceed',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 16,
-                                fontFamily: 'Montserrat Bold',
-                                color: AppColors.whiteColor),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        onPressed: () async {
-                          _btnController.reset();
-                          homeHealthController.open();
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  BaseController.laboratories[widget.index]['address'],
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      fontFamily: 'Montserrat Bold',
+                                      color: AppColors.appColor3),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                              ),
 
-                          // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Login()));
-                          // if(_formKey.currentState!.validate()){
-                          //   // if ( await loginController
-                          //   //     .loginUserAccount( name_field, password)) {
-                          //   //   ToastWidget(
-                          //   //       context, loginController.message.value, loginController.weight.value, 3);
-                          //   //   _btnController.reset();
-                          //   //   // Navigator.of(context).push(MaterialPageRoute(builder: (context) => Home()));
-                          //   // } else {
-                          //   //   ToastWidget(
-                          //   //       context, loginController.message.value, loginController.weight.value, 3);
-                          //   //   _btnController.reset();
-                          //   // }
-                          // }else _btnController.reset();
-                        }),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.13),
-                    ),
+                              Flexible(
+                                fit: FlexFit.loose,
+                                child: BaseController.laboratories[widget.index]['rating'] != null ? Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      color: AppColors.secondaryColor,
+                                      size: 15,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      '${BaseController.laboratories[widget.index]['rating']}  Rating' ,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 13,
+                                          fontFamily: 'Montserrat Bold',
+                                          color: AppColors.appPrimaryColor),
+                                      textAlign: TextAlign.left,
+                                    ),
+                                  ],
+                                ): Container()
+                              )
+                            ],
+                          ),
+                          SizedBox(
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                          ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.mail_outline,
+                                color: AppColors.secondaryColor,
+                                size: 20,
+                              ),
+                              SizedBox(
+                                width: DeviceUtils.getScaledWidth(context, scale: 0.02),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  BaseController.laboratories[widget.index]['company_contact_email'],
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      fontFamily: 'Montserrat Bold',
+                                      color: AppColors.appColor3),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                          ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.phone,
+                                color: AppColors.secondaryColor,
+                                size: 20,
+                              ),
+                              SizedBox(
+                                width: DeviceUtils.getScaledWidth(context, scale: 0.02),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  BaseController.laboratories[widget.index]['company_contact_phone_number'],
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      fontFamily: 'Montserrat Bold',
+                                      color: AppColors.appColor3),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                          ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: AppColors.secondaryColor,
+                                size: 20,
+                              ),
+                              SizedBox(
+                                width: DeviceUtils.getScaledWidth(context, scale: 0.02),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  BaseController.laboratories[widget.index]['company_bio'],
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      fontFamily: 'Montserrat Bold',
+                                      color: AppColors.appColor3),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.03),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: GestureDetector(
+                              onTap: () async {
+                                setState((){
+                                  loading = true;
+                                });
+                                if(await dashboardController.getTests()){
+                                  setState((){
+                                    loading = false;
+                                    tests_price = BaseController.testPrices;
+                                  });
+                                  specimenController.open().whenComplete(() => setState((){}));
+
+                                }else{
+                                  setState((){
+                                    loading = false;
+                                  });
+                                }
+                              },
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: loading ?
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.secondaryColor,
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                )
+                                    :
+                                const Text(
+                                  'View All Tests',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                      fontFamily: 'Montserrat Bold',
+                                      color: AppColors.secondaryColor),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.1),
+                          ),
+                          GestureDetector(
+                            onTap: (){
+                              homeHealthController.open();
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                                border: Border.all(width: 1, color: AppColors.appPrimaryColor)
+                              ),
+                              height: 45,
+                              child:  const Center(
+                                child: Text(
+                                  'Request Home Care',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                      fontFamily: 'Montserrat Bold',
+                                      color: AppColors.appPrimaryColor),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                          ),
+                          RoundedLoadingButton(
+                              controller: _btnController,
+                              height: 45,
+                              borderRadius: 16,
+                              color: AppColors.appPrimaryColor,
+                              successColor: AppColors.appPrimaryColor,
+                              child: const Center(
+                                child: Text(
+                                  'Place Request',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                      fontFamily: 'Montserrat Bold',
+                                      color: AppColors.whiteColor),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              onPressed: () async {
+                                BaseController.requestType = 'pickup';
+                                _btnController.reset();
+                                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const RequestOne()));
+
+                              }),
+                          SizedBox(
+                            height: DeviceUtils.getScaledHeight(context, scale: 0.13),
+                          ),
+                        ]
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -371,15 +402,19 @@ class _LabDetailsState extends State<LabDetails> {
               backdropEnabled: true,
               color: AppColors.whiteColor,
               backdropTapClosesPanel: true,
-              panel: const TestList(),
+              onPanelOpened: () {
+                setState(() {});
+              },
+              panel: TestList(testPrices: tests_price),
               boxShadow: const [],
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10.0),
                 topRight: Radius.circular(10.0),
               ),
             ),
+
             SlidingUpPanel(
-              maxHeight: DeviceUtils.getScaledHeight(context, scale: 0.45),
+              maxHeight: DeviceUtils.getScaledHeight(context, scale: 0.34),
               minHeight: DeviceUtils.getScaledHeight(context, scale: 0),
               padding: EdgeInsets.symmetric(
                   vertical: DeviceUtils.getScaledHeight(context, scale: 0.01),
@@ -391,7 +426,7 @@ class _LabDetailsState extends State<LabDetails> {
               backdropEnabled: true,
               color: AppColors.whiteColor,
               backdropTapClosesPanel: true,
-              panel: ConfirmTest(),
+              panel: RequestHomeCare(),
               boxShadow: const [],
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10.0),
@@ -406,7 +441,8 @@ class _LabDetailsState extends State<LabDetails> {
 }
 
 class TestList extends StatelessWidget {
-  const TestList({Key? key}) : super(key: key);
+  List testPrices;
+  TestList({required this.testPrices, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -432,77 +468,73 @@ class TestList extends StatelessWidget {
           SizedBox(
             height: DeviceUtils.getScaledHeight(context, scale: 0.01),
           ),
-          const Text(
-            'Tests',
-            style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 16,
-                fontFamily: 'Montserrat Bold',
-                color: AppColors.appColor3),
-            textAlign: TextAlign.center,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Tests',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                    fontFamily: 'Montserrat ExtraBold',
+                    color: AppColors.appColor0),
+                textAlign: TextAlign.left,
+              ),
+              SizedBox(
+                width: DeviceUtils.getScaledWidth(context, scale: 0.01),
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: DeviceUtils.getScaledWidth(context, scale: 0.1)),
+                child: const Text(
+                  'Price',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                      fontFamily: 'Montserrat ExtraBold',
+                      color: AppColors.appColor0),
+                    textAlign: TextAlign.left,
+                ),
+              ),
+            ],
           ),
           SizedBox(
             height: DeviceUtils.getScaledHeight(context, scale: 0.02),
           ),
           Expanded(
-            child: ListView(
-              scrollDirection: Axis.vertical,
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(width: 0.3, color: AppColors.appColor3),
-                    ),
-                  ),
-                  child: const ListTile(
-                      title: Text(
-                        'Malaria Tests',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            fontFamily: 'Montserrat Bold',
-                            color: AppColors.appColor3),
-                        textAlign: TextAlign.left,
+            child: ListView.builder(
+                itemCount: BaseController.testPrices.length,
+                itemBuilder: (context, index){
+                  return Container(
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(width: 0.3, color: AppColors.appColor6),
                       ),
-                      trailing: Text(
-                        'N500.00',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            fontFamily: 'Montserrat Bold',
-                            color: AppColors.appColor3),
-                        textAlign: TextAlign.center,
-                      )),
-                ),
-                Container(
-                  decoration: const BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(width: 0.3, color: AppColors.appColor3),
                     ),
-                  ),
-                  child: const ListTile(
-                      title: Text(
-                        'Malaria Tests',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            fontFamily: 'Montserrat Bold',
-                            color: AppColors.appColor3),
-                        textAlign: TextAlign.left,
-                      ),
-                      trailing: Text(
-                        'N500.00',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16,
-                            fontFamily: 'Montserrat Bold',
-                            color: AppColors.appColor3),
-                        textAlign: TextAlign.center,
-                      )),
-                ),
-                 
-              ],
-            ),
+                    child: ListTile(
+                        leading: Text(
+                          BaseController.testPrices[index]['name'],
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                              fontFamily: 'Montserrat Bold',
+                              color: AppColors.appColor3),
+                          textAlign: TextAlign.left,
+                        ),
+                        trailing: Text(
+                          'N${BaseController.testPrices[index]['price']}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                              fontFamily: 'Montserrat Bold',
+                              color: AppColors.secondaryColor),
+                          textAlign: TextAlign.center,
+                        )),
+                  );
+                }
+
+          ),
+
+
           ),
 
           SizedBox(
@@ -516,15 +548,17 @@ class TestList extends StatelessWidget {
 
 
 
-class ConfirmTest extends StatefulWidget {
+class RequestHomeCare extends StatefulWidget {
 
-   ConfirmTest({ Key? key}) : super(key: key);
+   RequestHomeCare({ Key? key}) : super(key: key);
 
   @override
-  State<ConfirmTest> createState() => _ConfirmTestState();
+  State<RequestHomeCare> createState() => _RequestHomeCareState();
 }
-class _ConfirmTestState extends State<ConfirmTest> {
+class _RequestHomeCareState extends State<RequestHomeCare> {
 
+  final RoundedLoadingButtonController _btnController =
+  RoundedLoadingButtonController();
 
   @override
   void initState() {
@@ -533,19 +567,15 @@ class _ConfirmTestState extends State<ConfirmTest> {
 
   @override
   Widget build(BuildContext context) {
-
-    final RoundedLoadingButtonController _btnController =
-    RoundedLoadingButtonController();
-
     return Container(
       padding: EdgeInsets.symmetric(
           horizontal: DeviceUtils.getScaledWidth(context, scale: 0.03),
-          vertical: DeviceUtils.getScaledHeight(context, scale: 0.02)),
+          vertical: DeviceUtils.getScaledHeight(context, scale: 0.01)),
       child:  Column(
           children: [
             Container(
               width: DeviceUtils.getScaledWidth(context, scale: 0.1),
-              height: 9,
+              height: 6,
               decoration: BoxDecoration(
                   color: AppColors.color13,
                   borderRadius: BorderRadius.circular(10)
@@ -556,7 +586,7 @@ class _ConfirmTestState extends State<ConfirmTest> {
               height: DeviceUtils.getScaledHeight(context, scale: 0.01),
             ),
             const Text(
-              'Request Summary',
+              'Request Home Care',
               style: TextStyle(
                   fontWeight: FontWeight.w400,
                   fontSize: 16,
@@ -567,46 +597,11 @@ class _ConfirmTestState extends State<ConfirmTest> {
             SizedBox(
               height: DeviceUtils.getScaledHeight(context, scale: 0.03),
             ),
-            Expanded(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(width: 0.2, color: AppColors.appColor3),
-                      ),
-                    ),
-                    child: const ListTile(
-                        title: Text(
-                          'Malaria Tests',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                              fontFamily: 'Montserrat Bold',
-                              color: AppColors.appColor3),
-                          textAlign: TextAlign.left,
-                        ),
-                        trailing: Text(
-                          'N500.00',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 16,
-                              fontFamily: 'Montserrat Bold',
-                              color: AppColors.appColor3),
-                          textAlign: TextAlign.center,
-                        )),
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: DeviceUtils.getScaledHeight(context, scale: 0.02),
-            ),
+
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Total Price",
+                "If you require health care delivered to you in your comfort area, Once a request is place, a varified home health agent will come to the location you specify as soon as possible",
                 style: TextStyle(
                     fontWeight: FontWeight.w400,
                     fontSize: 15,
@@ -616,27 +611,9 @@ class _ConfirmTestState extends State<ConfirmTest> {
               ),
             ),
             SizedBox(
-              height: DeviceUtils.getScaledHeight(context, scale: 0.01),
+              height: DeviceUtils.getScaledHeight(context, scale: 0.03),
             ),
-            Transform.translate(
-              offset: const Offset(14, 0),
-              child: const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'N3,500.00',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 20,
-                    fontFamily: 'Montserrat ExtraBold',
-                    color: AppColors.appColor0,
-                  ),
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: DeviceUtils.getScaledHeight(context, scale: 0.04),
-            ),
+
             RoundedLoadingButton(
                 controller: _btnController,
                 height: 45,
@@ -645,7 +622,7 @@ class _ConfirmTestState extends State<ConfirmTest> {
                 successColor: AppColors.appPrimaryColor,
                 child: const Center(
                   child: Text(
-                    'Proceed to Pay',
+                    'Proceed',
                     style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,
@@ -656,20 +633,8 @@ class _ConfirmTestState extends State<ConfirmTest> {
                 ),
                 onPressed: () async {
                   _btnController.reset();
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CardPayment()));
-                  // if(_formKey.currentState!.validate()){
-                  //   // if ( await loginController
-                  //   //     .loginUserAccount( name_field, password)) {
-                  //   //   ToastWidget(
-                  //   //       context, loginController.message.value, loginController.weight.value, 3);
-                  //   //   _btnController.reset();
-                  //   //   // Navigator.of(context).push(MaterialPageRoute(builder: (context) => Home()));
-                  //   // } else {
-                  //   //   ToastWidget(
-                  //   //       context, loginController.message.value, loginController.weight.value, 3);
-                  //   //   _btnController.reset();
-                  //   // }
-                  // }else _btnController.reset();
+                  BaseController.requestType = 'home-health';
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomeHealthRequest()));
                 }),
             SizedBox(
               height: DeviceUtils.getScaledHeight(context, scale: 0.04),
@@ -783,20 +748,7 @@ class _SuccessfulState extends State<Successful> {
               ),
               onPressed: () async {
                 _btnController.reset();
-                // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Login()));
-                // if(_formKey.currentState!.validate()){
-                //   // if ( await loginController
-                //   //     .loginUserAccount( name_field, password)) {
-                //   //   ToastWidget(
-                //   //       context, loginController.message.value, loginController.weight.value, 3);
-                //   //   _btnController.reset();
-                //   //   // Navigator.of(context).push(MaterialPageRoute(builder: (context) => Home()));
-                //   // } else {
-                //   //   ToastWidget(
-                //   //       context, loginController.message.value, loginController.weight.value, 3);
-                //   //   _btnController.reset();
-                //   // }
-                // }else _btnController.reset();
+
               }),
           SizedBox(
             height: DeviceUtils.getScaledHeight(context, scale: 0.04),

@@ -17,7 +17,7 @@ class PendingHistory extends StatefulWidget {
 class _HistoryState extends State<PendingHistory> {
   final HistoryController historyController = Get.put(HistoryController());
 
-  bool loading = false;
+  bool loading = true;
 
   void getDispatches(String type) async {
     if (await historyController.getDispatches(type)) {

@@ -114,7 +114,7 @@ class _LabsState extends State<Labs> {
                         GestureDetector(
                           onTap: () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const LabDetails()));
+                                builder: (context) => LabDetails(index: 0)));
                           },
                           child: ClipRRect(
                             child: Stack(

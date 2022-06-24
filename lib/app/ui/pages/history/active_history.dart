@@ -17,7 +17,7 @@ class ActiveHistory extends StatefulWidget {
 class _ActiveHistoryState extends State<ActiveHistory> {
   final HistoryController historyController = Get.put(HistoryController());
 
-  bool loading = false;
+  bool loading = true;
 
   void getDispatches(String type) async {
     if (await historyController.getDispatches(type)) {

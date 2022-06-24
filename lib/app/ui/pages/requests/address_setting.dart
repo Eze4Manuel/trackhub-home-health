@@ -9,16 +9,15 @@ import 'package:trackhub_home_health/app/utils/widget_utils.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../controller/base_controller.dart';
+import '../../../controller/dashboard_controller.dart';
 import '../../../model/place_service.dart';
 import '../../../utils/device_utils.dart';
-
 
 
 class AddressSetting extends StatefulWidget {
 
   PanelController specimenController;
   PanelController addressController;
-
   AddressSetting({ required this.specimenController, required this.addressController, Key? key}) : super(key: key);
 
   @override
@@ -32,11 +31,15 @@ class _AddressSettingState extends State<AddressSetting> {
   final _controller = TextEditingController();
   final AuthenticationController authenticationController =
   Get.put(AuthenticationController());
+  final DashboardController dashboardController =
+  Get.put(DashboardController());
 
   String address = '';
 
   @override
-  void initState() {}
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -54,135 +57,139 @@ class _AddressSettingState extends State<AddressSetting> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-                height: DeviceUtils.getScaledHeight(context, scale: 0.02)),
 
             SizedBox(
-                height: DeviceUtils.getScaledHeight(context, scale: 0.03)),
+                height: DeviceUtils.getScaledHeight(context, scale: 0.05)),
             Form(
               key: _formKey,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+
                 children: [
-                  Column(
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: AppColors.appColor4,
+                    ),
+                    child: TextFormField(
+                      controller: _controller,
+                      style: const TextStyle(
+                          fontSize: 13.0,
+                          fontFamily: 'Montserrat SemiBold',
+                          color: AppColors.appColor0),
+                      readOnly: true,
+                      decoration: InputDecorationValues03(
+                        hintText: 'Select Address',
+                        surfixIcon: const Icon(
+                          Icons.my_location,
+                          color: AppColors.appPrimaryColor,
+                          size: 25,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isNotEmpty && value.length < 3) {
+                          return 'Address not set';
+                        }
+                        return null;
+                      },
+                      onTap: () async {
+                        final sessionToken = const Uuid().v4();
+                        final Suggestions? result = await showSearch(
+                          context: context,
+                          delegate: AddressSearch(sessionToken),
+                        );
+                        // This will change the text displayed in the TextField
+                        if (result != null) {
+                          final placeDetails =
+                          await PlaceApiProvider(sessionToken)
+                              .getPlaceDetailFromId(result.placeId);
+                          setState(() {
+                            _controller.text = result.description;
+                            address = result.description;
+                          });
+                          BaseController.selectedAddress['address'] = result.description;
+                          BaseController.selectedAddress['addressInfo'] = AuthenticationController.addressInfo;
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    height: DeviceUtils.getScaledHeight(context,
+                        scale: 0.02),
+                  ),
+                  address.isNotEmpty
+                      ? RoundedLoadingButton(
+                      controller: _btnController,
+                      disabledColor: AppColors.appColor3,
+                      height: 45,
+                      borderRadius: 16,
+                      color: AppColors.appPrimaryColor,
+                      successColor: AppColors.appPrimaryColor,
+                      child: const Center(
+                        child: Text(
+                          'Finish',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 16,
+                              fontFamily: 'Montserrat Bold',
+                              color: AppColors.whiteColor),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      onPressed: () async {
+                        if(await dashboardController.getDetinationCost()){
+                          widget.addressController.close();
+                          _btnController.reset();
+                          widget.specimenController.open();
+                        }else{
+                          _btnController.reset();
+                        }
+
+                      })
+                      : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          color: AppColors.appColor4,
+                        decoration: const BoxDecoration(
+                            border:  Border(
+                                bottom: BorderSide(
+                                    color: AppColors.color13, width: 0.7),
+                                top: BorderSide(
+                                    color: AppColors.color13, width: 0.7))
                         ),
-                        child: TextFormField(
-                          controller: _controller,
-                          style: const TextStyle(
-                              fontSize: 13.0,
-                              fontFamily: 'Montserrat SemiBold',
-                              color: AppColors.appColor0),
-                          readOnly: true,
-                          decoration: InputDecorationValues03(
-                            hintText: 'Select Address',
-                            surfixIcon: const Icon(
-                              Icons.my_location,
-                              color: AppColors.appPrimaryColor,
-                              size: 25,
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value!.isNotEmpty && value.length < 3) {
-                              return 'Address not set';
-                            }
-                            return null;
-                          },
-                          onTap: () async {
-                            final sessionToken = const Uuid().v4();
-                            final Suggestions? result = await showSearch(
-                              context: context,
-                              delegate: AddressSearch(sessionToken),
-                            );
-                            // This will change the text displayed in the TextField
-                            if (result != null) {
-                              final placeDetails =
-                              await PlaceApiProvider(sessionToken)
-                                  .getPlaceDetailFromId(result.placeId);
-                              setState(() {
-                                _controller.text = result.description;
-                                address = result.description;
-                              });
-                              BaseController.selectedAddress['address'] = result.description;
-                              BaseController.selectedAddress['addressInfo'] = AuthenticationController.addressInfo;
-                            }
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: DeviceUtils.getScaledHeight(context,
-                            scale: 0.02),
-                      ),
-                      address.isNotEmpty
-                          ? RoundedLoadingButton(
-                          controller: _btnController,
-                          disabledColor: AppColors.appColor3,
-                          height: 45,
-                          borderRadius: 16,
-                          color: AppColors.appPrimaryColor,
-                          successColor: AppColors.appPrimaryColor,
-                          child: const Center(
-                            child: Text(
-                              'Finish',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
-                                  fontFamily: 'Montserrat Bold',
-                                  color: AppColors.whiteColor),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          onPressed: () async {
+                        child: ListTile(
+                          onTap: () async{
+                            BaseController.selectedAddress['address'] = BaseController.user_data['address'];
+                            BaseController.selectedAddress['addressInfo'] = BaseController.user_data['more_info'];
+                            if(await dashboardController.getDetinationCost()){
                             widget.addressController.close();
                             _btnController.reset();
                             widget.specimenController.open();
-                          })
-                          : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: const BoxDecoration(
-                                border:  Border(
-                                    bottom: BorderSide(
-                                        color: AppColors.color13, width: 0.7),
-                                    top: BorderSide(
-                                        color: AppColors.color13, width: 0.7))
-                            ),
-                            child: ListTile(
-                              onTap: (){
-                                BaseController.selectedAddress['address'] = BaseController.user_data['address'];
-                                BaseController.selectedAddress['addressInfo'] = BaseController.user_data['more_info'];
-                                widget.specimenController.open();
-                              },
-                              horizontalTitleGap: 10,
-                              minLeadingWidth: 15,
-                              leading: const Icon(Icons.storage,
-                                color: AppColors.appColor3,
-                                size: 20,),
-                              title: Text(BaseController.user_data["address"].toString(),
-                                style: const TextStyle(
-                                    fontSize: 13.0,
-                                    fontFamily: 'Montserrat SemiBold',
-                                    color: AppColors.appColor3),),
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: DeviceUtils.getScaledHeight(context,
-                            scale: 0.02),
-                      ),
-                      SizedBox(
-                        height: DeviceUtils.getScaledHeight(context,
-                            scale: 0.02),
-                      ),
+                            }else{
+                            _btnController.reset();
+                            }
+                            // widget.specimenController.open();
+                          },
+                          horizontalTitleGap: 10,
+                          minLeadingWidth: 15,
+                          leading: const Icon(Icons.storage,
+                            color: AppColors.appColor3,
+                            size: 20,),
+                          title: Text(BaseController.user_data["address"].toString(),
+                            style: const TextStyle(
+                                fontSize: 13.0,
+                                fontFamily: 'Montserrat SemiBold',
+                                color: AppColors.appColor3),),
+                        ),
+                      )
                     ],
                   ),
+                  SizedBox(
+                    height: DeviceUtils.getScaledHeight(context,
+                        scale: 0.04),
+                  ),
+
                 ],
               ),
             ),
@@ -192,6 +199,7 @@ class _AddressSettingState extends State<AddressSetting> {
     );
   }
 }
+
 
 class AddressSearch extends SearchDelegate<Suggestions> {
   AddressSearch(this.sessionToken) {
@@ -304,7 +312,7 @@ class AddressSearch extends SearchDelegate<Suggestions> {
           'Enter your address',
           style: TextStyle(
               fontWeight: FontWeight.w400,
-              fontSize: 13,
+              fontSize: 14,
               fontFamily: 'Montserrat SemiBold',
               color: AppColors.appColor0),
         ),
@@ -335,7 +343,7 @@ class AddressSearch extends SearchDelegate<Suggestions> {
                 (snapshot.data![index]).description,
                 style: const TextStyle(
                     fontWeight: FontWeight.w400,
-                    fontSize: 13,
+                    fontSize: 14,
                     fontFamily: 'Montserrat SemiBold',
                     color: AppColors.appColor0),
               ),
@@ -353,7 +361,7 @@ class AddressSearch extends SearchDelegate<Suggestions> {
           'Searching...',
           style: TextStyle(
               fontWeight: FontWeight.w400,
-              fontSize: 13,
+              fontSize: 14,
               fontFamily: 'Montserrat Bold',
               color: AppColors.appColor0),
           textAlign: TextAlign.center,

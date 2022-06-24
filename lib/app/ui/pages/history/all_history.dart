@@ -46,7 +46,6 @@ class _HistoryState extends State<AllHistory> {
 
   @override
   Widget build(BuildContext context) {
-    print(BaseController.dispatches.length);
     return Scaffold(
         backgroundColor: AppColors.appColor5,
         body: Container(

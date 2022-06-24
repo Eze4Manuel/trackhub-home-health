@@ -13,7 +13,6 @@ import 'package:trackhub_home_health/app/ui/pages/profile/profile.dart';
 import 'package:trackhub_home_health/app/ui/theme/app_colors.dart';
 import 'package:trackhub_home_health/app/utils/device_utils.dart';
 import 'package:trackhub_home_health/app/utils/widget_utils.dart';
-
 import '../../../model/account.dart';
 
 
@@ -50,7 +49,6 @@ class _EditProfileState extends State<EditProfile> {
     dob: BaseController.user_data['dob'],
   );
   bool valid = false;
-
 
   var imagePicker;
   bool loading = false;

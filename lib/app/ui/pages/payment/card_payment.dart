@@ -351,8 +351,6 @@ class _CardPaymentState extends State<CardPayment> {
                             ),
                           ),
                           onPressed: () async {
-                            _btnController.reset();
-
                             if (_formKey.currentState!.validate()) {
                               if (await dashboardController.paymentMadeUpdate(
                                   debitCard, isChecked)) {

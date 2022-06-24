@@ -16,7 +16,6 @@ class _PhlebotomistDetailsState extends State<PhlebotomistDetails> {
   @override
   Widget build(BuildContext context) {
     print(BaseController.assignedPhlebotomist);
-
     return Container(
       child: Column(
         children: [
@@ -77,7 +76,7 @@ class _PhlebotomistDetailsState extends State<PhlebotomistDetails> {
             leading: ClipRRect(
                 borderRadius: BorderRadius.circular(208.0),
                 child:
-                    BaseController.assignedPhlebotomist['image_url'].length > 0
+                    BaseController.assignedPhlebotomist['image_url']!= null
                         ? Container(
                             color: AppColors.tertiaryColor,
                             child: Image.network(
@@ -96,9 +95,9 @@ class _PhlebotomistDetailsState extends State<PhlebotomistDetails> {
                               color: AppColors.color12,
                             ),
                           )),
-            trailing: const Text(
-              '4.5',
-              style: TextStyle(
+            trailing: Text(
+              BaseController.assignedPhlebotomist['rating'] ?? '3.5',
+              style: const TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: 14,
                 fontFamily: 'Montserrat ExtraBold',

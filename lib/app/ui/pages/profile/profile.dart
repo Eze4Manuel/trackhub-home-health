@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:trackhub_home_health/app/controller/profile_controller.dart';
+import 'package:trackhub_home_health/app/ui/pages/intro_slider.dart';
+import 'package:trackhub_home_health/app/ui/pages/profile/areaUpdate.dart';
 import 'package:trackhub_home_health/app/ui/pages/profile/change_password.dart';
 import 'package:trackhub_home_health/app/ui/pages/profile/edit_profile.dart';
 import 'package:trackhub_home_health/app/ui/pages/registration/login.dart';
@@ -30,18 +33,25 @@ class _ProfileState extends State<Profile> {
   NumberFormat myFormat = NumberFormat.compact(locale: 'en_US');
   final ProfileController profileController = Get.put(ProfileController());
   late PanelController _addressSearchController;
+  late PanelController _areaUpdateController;
   String? savedImage;
+  bool visible = false;
 
   @override
   void initState() {
     _addressSearchController = PanelController();
+    _areaUpdateController = PanelController();
+    KeyboardVisibilityController().onChange.listen((isVisible) {
+      isVisible ? setState((){
+        visible = true;
+      }) : visible = false;
+    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    savedImage = BaseController.user_data['image_url'];
-
+    savedImage = BaseController.user_data['image_url'] ?? '';
     return Scaffold(
       backgroundColor: AppColors.appColor5,
       body: Container(
@@ -98,7 +108,9 @@ class _ProfileState extends State<Profile> {
                                       width: 100.0,
                                       fit: BoxFit.cover,
                                     ),
-                                  )),
+                                  )
+
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -157,7 +169,7 @@ class _ProfileState extends State<Profile> {
                         tileColor: AppColors.whiteColor,
                         dense: true,
                         leading: const Icon(
-                          Icons.person_add_alt_1_rounded,
+                          Icons.person_add_alt_1_outlined,
                           color: AppColors.appPrimaryColor,
                         ),
                         title: const Text(
@@ -194,7 +206,7 @@ class _ProfileState extends State<Profile> {
                         tileColor: AppColors.whiteColor,
                         dense: true,
                         leading: const Icon(
-                          Icons.lock_rounded,
+                          Icons.lock_outline_rounded,
                           color: AppColors.appPrimaryColor,
                         ),
                         title: const Text(
@@ -228,7 +240,7 @@ class _ProfileState extends State<Profile> {
                         tileColor: AppColors.whiteColor,
                         dense: true,
                         leading: const Icon(
-                          Icons.airplane_ticket_rounded,
+                          Icons.airplane_ticket_outlined,
                           color: AppColors.appPrimaryColor,
                         ),
                         title: const Text(
@@ -258,11 +270,41 @@ class _ProfileState extends State<Profile> {
                         tileColor: AppColors.whiteColor,
                         dense: true,
                         leading: const Icon(
-                          Icons.airplane_ticket_rounded,
+                          Icons.home_work_outlined,
                           color: AppColors.appPrimaryColor,
                         ),
                         title: const Text(
                           'Update Address',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                              fontFamily: 'Montserrat ExtraBold',
+                              color: AppColors.appColor0),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios,
+                            color: AppColors.color13, size: 20),
+                      ),
+                    ),
+                    SizedBox(
+                      height:
+                      DeviceUtils.getScaledHeight(context, scale: 0.015),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.circular(13)),
+                      child: ListTile(
+                        onTap: () {
+                          _areaUpdateController.open();
+                        },
+                        tileColor: AppColors.whiteColor,
+                        dense: true,
+                        leading: const Icon(
+                          Icons.location_city_outlined,
+                          color: AppColors.appPrimaryColor,
+                        ),
+                        title: const Text(
+                          'Update Area',
                           style: TextStyle(
                               fontWeight: FontWeight.w400,
                               fontSize: 14,
@@ -284,18 +326,20 @@ class _ProfileState extends State<Profile> {
                       child: ListTile(
                         onTap: () async {
                           if (await profileController.logout()) {
+
                             Navigator.pushReplacement(
                                 context,
                                 PageTransition(
                                     type: PageTransitionType.fade,
                                     child: const Login()));
+
                           }
                         },
                         tileColor: AppColors.whiteColor,
                         dense: true,
                         leading: const Icon(
-                          Icons.airplane_ticket_rounded,
-                          color: AppColors.appPrimaryColor,
+                          Icons.logout_outlined,
+                          color: AppColors.color7,
                         ),
                         title: const Text(
                           'Logout',
@@ -348,6 +392,30 @@ class _ProfileState extends State<Profile> {
               },
               panel: AddressUpdate(
                   addressSearchController: _addressSearchController),
+              boxShadow: const [],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0),
+              ),
+            ),
+            SlidingUpPanel(
+              maxHeight: DeviceUtils.getScaledHeight(context, scale: 0.31),
+              minHeight: DeviceUtils.getScaledHeight(context, scale: 0),
+              padding: EdgeInsets.symmetric(
+                  vertical: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                  horizontal: DeviceUtils.getScaledWidth(context, scale: 0.02)),
+              margin: EdgeInsets.only(
+                  bottom: visible ? DeviceUtils.getScaledHeight(context, scale: 0.012) : DeviceUtils.getScaledHeight(context, scale: 0.072) ),
+              controller: _areaUpdateController,
+              backdropOpacity: 0.2,
+              backdropEnabled: true,
+              color: AppColors.whiteColor,
+              backdropTapClosesPanel: true,
+              onPanelOpened: () {
+                setState(() {});
+              },
+              panel: AreaUpdate(
+                  areaUpdateController: _areaUpdateController ),
               boxShadow: const [],
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10.0),

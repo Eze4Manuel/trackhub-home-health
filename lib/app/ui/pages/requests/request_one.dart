@@ -21,14 +21,13 @@ class RequestOne extends StatefulWidget {
 }
 
 class _RequestOneState extends State<RequestOne> {
-  String _selectedValue = 'Select Lab';
   List<String> listOfValue = ['Select Lab'];
   Test testRequest = Test();
   var listOfTests = [];
-
+  var listOfSpecimen = [];
   bool loading = true;
   bool enabled = false;
-  bool testLoading = false;
+  bool testLoading = true;
   bool seggestionTap = false;
   String? test;
 
@@ -36,41 +35,27 @@ class _RequestOneState extends State<RequestOne> {
   RoundedLoadingButtonController();
   late PanelController specimenController;
   late PanelController addressController;
+  final TextEditingController _specimenTextFieldController =
+  TextEditingController();
+
   final TextEditingController _testNameTextFieldController =
   TextEditingController();
   final TextEditingController _testBottleNoTextFieldController =
   TextEditingController();
   final TextEditingController _testMoreInfoTextFieldController =
   TextEditingController();
-
   DashboardController dashboardController = Get.put(DashboardController());
 
-  Future<void> fetchLabProviders() async {
-    if (await dashboardController.getLabs()) {
-      for (var element in BaseController.laboratories) {
-        listOfValue.add(element['company_name']);
-      }
-      setState(() {
-        loading = false;
-      });
-    }
-  }
 
-  Future<void> fetchLabTests(value) async {
-    // checks the fetched lab and filters out the seleceted lab
-    BaseController.selectedLab = BaseController.laboratories
-        .firstWhere((element) => element['company_name'] == value.toString());
-
-    setState(() {
-      _selectedValue = value.toString();
-      testLoading = true;
-      enabled = true;
-    });
+  Future<void> fetchTestData( ) async {
     // Gets the list of test for the selected lab
-    if (await dashboardController.getTests()) {
-      listOfTests.clear();
+    if (await dashboardController.fetchPickupData()) {
+      listOfSpecimen.clear();
       for (var element in BaseController.testPrices) {
         listOfTests.add(element['name']);
+      }
+      for (var element in BaseController.specimens) {
+        listOfSpecimen.add(element['name']);
       }
       setState(() {
         testLoading = false;
@@ -82,7 +67,7 @@ class _RequestOneState extends State<RequestOne> {
   void initState() {
     specimenController = PanelController();
     addressController = PanelController();
-    fetchLabProviders();
+     fetchTestData();
     super.initState();
   }
   @override
@@ -91,7 +76,17 @@ class _RequestOneState extends State<RequestOne> {
     return Scaffold(
       backgroundColor: AppColors.appColor6,
       body: SafeArea(
-        child: Stack(
+        child: testLoading
+            ? Container(
+          color: AppColors.appColor4,
+          child: Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.white.withOpacity(0.5),
+              color: AppColors.appPrimaryColor,
+            ),
+          ),
+        )
+            : Stack(
           children: [
             Container(
               width: DeviceUtils.getScaledWidth(context, scale: 1),
@@ -101,7 +96,7 @@ class _RequestOneState extends State<RequestOne> {
                 child: Column(
                   children: [
                     SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                      height: DeviceUtils.getScaledHeight(context, scale: 0.04),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -144,7 +139,7 @@ class _RequestOneState extends State<RequestOne> {
                         Icon(
                           Icons.directions_bike_outlined,
                           size: 25,
-                          color: AppColors.appPrimaryColor,
+                          color: AppColors.secondaryColor,
                         ),
                         Expanded(
                           child: Divider(
@@ -199,89 +194,9 @@ class _RequestOneState extends State<RequestOne> {
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
-                    ),
-                    const Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Select Lab',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 14,
-                            fontFamily: 'Montserrat Bold',
-                            color: AppColors.appColor0),
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                    SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
-                    ),
-                    IgnorePointer(
-                      ignoring: enabled,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.whiteColor,
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: DropdownButtonFormField(
-                          value: _selectedValue,
 
-                          focusColor: AppColors.whiteColor,
-                          icon: const Icon(Icons.keyboard_arrow_down_outlined),
-                          decoration: InputDecoration(
-                              isDense: true,
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  10.0, 10.0, 10.0, 10.0),
-                              hintStyle: const TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  fontFamily: 'Montserrat Regular',
-                                  color: AppColors.appColor0),
-                              counterText: "",
-                              border: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      width: 0, color: AppColors.whiteColor),
-                                  borderRadius: BorderRadius.circular(10)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      width: 0, color: AppColors.whiteColor),
-                                  borderRadius: BorderRadius.circular(10)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(
-                                      color: Colors.white, width: 0),
-                                  borderRadius: BorderRadius.circular(10.0))),
-                          hint: const Text(
-                            '',
-                          ),
-                          isExpanded: true,
-                          onChanged: (value) {
-                            fetchLabTests(value);
-                            _testNameTextFieldController.text = '';
-                          },
-                          onSaved: (value) {
-                            setState(() {
-                              _selectedValue = value.toString();
-                            });
-                          },
-                          items: listOfValue.map((String val) {
-                            return DropdownMenuItem(
-                              value: val,
-                              child: Text(
-                                val,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: 14,
-                                    fontFamily: 'Montserrat Bold',
-                                    color: AppColors.appColor0),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
                     SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.06),
+                      height: DeviceUtils.getScaledHeight(context, scale: 0.04),
                     ),
                     const Align(
                       alignment: Alignment.centerLeft,
@@ -295,6 +210,9 @@ class _RequestOneState extends State<RequestOne> {
                         textAlign: TextAlign.left,
                       ),
                     ),
+
+
+
                     SizedBox(
                       height: DeviceUtils.getScaledHeight(context, scale: 0.02),
                     ),
@@ -304,12 +222,10 @@ class _RequestOneState extends State<RequestOne> {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: SearchField(
-                          controller: _testNameTextFieldController,
-                          suggestions: enabled
-                              ? listOfTests
+                          controller: _specimenTextFieldController,
+                          suggestions: listOfSpecimen
                               .map((e) => SearchFieldListItem(e))
-                              .toList()
-                              : [],
+                              .toList(),
                           searchInputDecoration: InputDecoration(
                               isDense: true,
                               suffixIcon: testLoading
@@ -344,8 +260,82 @@ class _RequestOneState extends State<RequestOne> {
                                       color: Colors.white, width: 0),
                                   borderRadius: BorderRadius.circular(10.0))),
                           maxSuggestionsInViewPort: 6,
+                          inputType: listOfSpecimen.isEmpty ? TextInputType.none : TextInputType.text,
                           itemHeight: 50,
-                          inputType: !enabled ? TextInputType.none : null,
+                           onSuggestionTap: (x) {
+                            setState(() {
+                              seggestionTap = true;
+                              testRequest.specimen =
+                                  _specimenTextFieldController.value.text;
+                            });
+                          },
+                          validator: (x) {
+                            if (x!.isEmpty) {
+                              return 'Please select a test';
+                            }
+                            return null;
+                          },
+                          suggestionState: Suggestion.expand,
+                          textInputAction: TextInputAction.none,
+                          hint: listOfSpecimen.isEmpty ? 'No specimen type available' : 'Select Specimen Type',
+                          hasOverlay: true,
+                          searchStyle: const TextStyle(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 13,
+                              fontFamily: 'Montserrat Bold',
+                              color: AppColors.appColor0),
+                        )),
+
+
+                    SizedBox(
+                      height: DeviceUtils.getScaledHeight(context, scale: 0.02),
+                    ),
+                    Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.whiteColor,
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: SearchField(
+                          controller: _testNameTextFieldController,
+                          suggestions: listOfTests
+                              .map((e) => SearchFieldListItem(e))
+                              .toList(),
+                          searchInputDecoration: InputDecoration(
+                              isDense: true,
+                              suffixIcon: testLoading
+                                  ? const SizedBox(
+                                width: 0,
+                                child: SpinKitRotatingCircle(
+                                  color: AppColors.color13,
+                                  size: 20.0,
+                                ),
+                              )
+                                  : Container(
+                                width: 0,
+                              ),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                  10.0, 0.0, 10.0, 0.0),
+                              hintStyle: const TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 14,
+                                  fontFamily: 'Montserrat Bold',
+                                  color: AppColors.appColor0),
+                              counterText: "",
+                              border: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      width: 0, color: AppColors.whiteColor),
+                                  borderRadius: BorderRadius.circular(10)),
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      width: 0, color: AppColors.whiteColor),
+                                  borderRadius: BorderRadius.circular(10)),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: const BorderSide(
+                                      color: Colors.white, width: 0),
+                                  borderRadius: BorderRadius.circular(10.0))),
+                          inputType: listOfTests.isEmpty ? TextInputType.none : TextInputType.text,
+                          maxSuggestionsInViewPort: 6,
+                          itemHeight: 50,
                           onSuggestionTap: (x) {
                             setState(() {
                               seggestionTap = true;
@@ -368,9 +358,7 @@ class _RequestOneState extends State<RequestOne> {
                           },
                           suggestionState: Suggestion.expand,
                           textInputAction: TextInputAction.none,
-                          hint: enabled
-                              ? 'Select Test'
-                              : 'First choose Lab above',
+                          hint: listOfTests.isEmpty ? 'No test type available' : 'Select Test Type',
                           hasOverlay: true,
                           searchStyle: const TextStyle(
                               fontWeight: FontWeight.w400,
@@ -395,12 +383,7 @@ class _RequestOneState extends State<RequestOne> {
                         decoration:
                         InputDecorationValues02(hintText: 'No of bottles'),
                         keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value!.isNotEmpty && value.length < 3) {
-                            return 'Name too short';
-                          }
-                          return null;
-                        },
+
                         onChanged: (val) {
                           setState(() {
                             testRequest.noOfBottles = val.toString();
@@ -426,9 +409,6 @@ class _RequestOneState extends State<RequestOne> {
                         decoration:
                         InputDecorationValues02(hintText: 'More Info'),
                         validator: (value) {
-                          if (value!.isNotEmpty && value.length < 3) {
-                            return 'Name too short';
-                          }
                           return null;
                         },
                         onChanged: (val) {
@@ -443,33 +423,38 @@ class _RequestOneState extends State<RequestOne> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        seggestionTap ? {
-                        BaseController.testOrders.add(testRequest.toJson()),
-                        _testNameTextFieldController.text = '',
-                        _testBottleNoTextFieldController.text = '',
-                        _testMoreInfoTextFieldController.text = '',
-                      }: {
-                        ToastWidget(
-                        context, "Test selected not offered by lab", 'danger', 3)
-                        };
+                        if(_specimenTextFieldController.text.isEmpty){
+                          ToastWidget(
+                              context, "Specimen not selected", 'danger', 3);
+                        }
+                        else if(_testNameTextFieldController.text.isEmpty){
+                          ToastWidget(
+                              context, "Test selected not offered by lab", 'danger', 3);
+                        }else{
+                             BaseController.testOrders.add(testRequest.toJson());
+                              _specimenTextFieldController.text = '';
+                              _testNameTextFieldController.text = '';
+                            _testBottleNoTextFieldController.text = '';
+                            _testMoreInfoTextFieldController.text = '';
+                        }
                       },
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Container(
-                          padding: const EdgeInsets.all(7),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                               color: AppColors.appPrimaryColor,
-                              borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(15)),
                           child: const Text('Add Test',
                               style: TextStyle(
-                                  fontSize: 12.0,
+                                  fontSize: 14.0,
                                   fontFamily: 'Montserrat SemiBold',
                                   color: AppColors.whiteColor)),
                         ),
                       ),
                     ),
                     SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.05),
+                      height: DeviceUtils.getScaledHeight(context, scale: 0.09),
                     ),
                     RoundedLoadingButton(
                         controller: _btnController,

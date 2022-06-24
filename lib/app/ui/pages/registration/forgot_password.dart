@@ -5,7 +5,6 @@ import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:trackhub_home_health/app/controller/authentication_controller.dart';
 import 'package:trackhub_home_health/app/controller/base_controller.dart';
-import 'package:trackhub_home_health/app/ui/pages/registration/login.dart';
 import 'package:trackhub_home_health/app/ui/pages/registration/reset_password.dart';
 import 'package:trackhub_home_health/app/ui/theme/app_colors.dart';
 import 'package:trackhub_home_health/app/utils/device_utils.dart';

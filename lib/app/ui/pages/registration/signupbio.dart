@@ -9,8 +9,9 @@ import 'package:trackhub_home_health/app/ui/theme/app_colors.dart';
 import 'package:trackhub_home_health/app/utils/device_utils.dart';
 import 'package:trackhub_home_health/app/utils/widget_utils.dart';
 import 'package:uuid/uuid.dart';
-
 import '../profile/address_search.dart';
+import 'login.dart';
+
 
 class SignUpBio extends StatefulWidget {
   const SignUpBio({Key? key}) : super(key: key);
@@ -214,7 +215,7 @@ class _SignUpBioState extends State<SignUpBio> {
                                               AppColors.appPrimaryColor,
                                           child: const Center(
                                             child: Text(
-                                              'Finish',
+                                              'Continue',
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w400,
                                                   fontSize: 16,
@@ -224,7 +225,6 @@ class _SignUpBioState extends State<SignUpBio> {
                                             ),
                                           ),
                                           onPressed: () async {
-
                                             if (await authenticationController
                                                 .updateAddress(
                                                 AuthenticationController.user_email,

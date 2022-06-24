@@ -33,6 +33,7 @@ class _DisplayDetailsState extends State<DispatchDetails> {
 
   @override
   Widget build(BuildContext context) {
+    print(BaseController.dispatches[widget.index]['request_type']);
     total = BaseController.dispatches[widget.index]['payment_structure']['amount'].toDouble();
 
     final DateTime assignedDate = DateTime.now();
@@ -58,17 +59,27 @@ class _DisplayDetailsState extends State<DispatchDetails> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                         const Align(
+                        Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Request Details',
+                          child: BaseController.dispatches[widget.index]['request_type'] == 'customer-home-health' ?
+                          const Text(
+                            'Home Health Details',
                             style: TextStyle(
                                 fontWeight: FontWeight.w400,
                                 fontSize: 20,
                                 fontFamily: 'Montserrat ExtraBold',
                                 color: AppColors.appColor0),
                             textAlign: TextAlign.left,
-                          ),
+                          ):
+                           const Text(
+                             'Request Details',
+                             style: TextStyle(
+                                 fontWeight: FontWeight.w400,
+                                 fontSize: 20,
+                                 fontFamily: 'Montserrat ExtraBold',
+                                 color: AppColors.appColor0),
+                             textAlign: TextAlign.left,
+                           ),
                         ),
 
                         BaseController.dispatches[widget.index]['dispatcher_details']['assigned_time'] == null
@@ -360,7 +371,7 @@ class _DisplayDetailsState extends State<DispatchDetails> {
                       ),
                     ),
                     SizedBox(
-                      height: DeviceUtils.getScaledHeight(context, scale: 0.07),
+                      height: DeviceUtils.getScaledHeight(context, scale: 0.09),
                     ),
                   ],
                 ),
@@ -382,7 +393,7 @@ class _DisplayDetailsState extends State<DispatchDetails> {
               onPanelOpened: () {
                 setState(() {});
               },
-              panel: PhlebotomistDetails( index: widget.index),
+              panel: BaseController.dispatches[widget.index]['dispatcher_details']['assigned_time'] == null ? Container() : PhlebotomistDetails( index: widget.index ?? 0),
               boxShadow: const [],
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10.0),

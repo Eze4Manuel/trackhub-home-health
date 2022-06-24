@@ -107,6 +107,38 @@ class ProfileController extends BaseController {
   }
 
 
+  Future<bool> getListOfAreas() async {
+    var url = Uri.parse(
+        '${Strings.domain}v1/admin/locations/get-areas');
+    // Sending parameters to http request. Implemented in base controller
+    var result = await sendAuthorizedHttpRequest(url, {}, 'get');
+    if (result == false) {
+      return result;
+    } else {
+      BaseController.areaLists = result ?? [];
+      return Future<bool>.value(true);
+    }
+  }
+
+  Future<bool> updateArea(String area) async {
+    dynamic data;
+    var url = Uri.parse('${Strings.domain}v1/admin/customers/update-customer?_id=${BaseController.user_data['user_id'] ?? BaseController.user_data['_id']}');
+    data = {
+      "area": area
+    };
+    print(url);
+    print(data);
+    // Sending parameters to http request. Implemented in base controller
+    var result = await sendAuthorizedHttpRequest(url, data, 'put');
+
+    if (result == false) {
+      return result;
+    } else {
+      setMessage("Address updated");
+      return Future<bool>.value(true);
+    }
+  }
+
   Future<bool> logout() async {
     await SharedPrefs.remove('user_id');
     await SharedPrefs.remove('token');

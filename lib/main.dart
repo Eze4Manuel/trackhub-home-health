@@ -45,7 +45,7 @@ void main() async {
             ),
           ),
           debugShowCheckedModeBanner: false,
-          home: user_id == null  ? const Login() :  const Home()
+          home: user_id == null  ? const IntroSlider() :  const Home()
         // home.dart: Login()
       )));
 }

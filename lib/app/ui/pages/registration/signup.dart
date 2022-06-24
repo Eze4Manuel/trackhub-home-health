@@ -283,7 +283,7 @@ class _SignupState extends State<Signup> {
                                           color: AppColors.appColor0
                                       ),
                                       decoration:
-                                      InputDecorationValues02(hintText: 'trachub4life'),
+                                      InputDecorationValues02(hintText: 'trackhub '),
                                       validator: (value) {
                                         if (value!.isEmpty) {
                                           return 'Username is required';

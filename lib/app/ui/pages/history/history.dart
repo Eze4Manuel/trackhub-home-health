@@ -18,7 +18,7 @@ class History extends StatefulWidget {
 
 class _HistoryState extends State<History> {
   final HistoryController historyController = Get.put(HistoryController());
-  bool loading = false;
+  bool loading = true;
 
   void getDispatches(String type) async {
     if (await historyController.getDispatches(type)) {
@@ -41,9 +41,7 @@ class _HistoryState extends State<History> {
   }
   @override
   Widget build(BuildContext context) {
-    // BaseController.persistentController.addListener(() {
-    //   if(BaseController.persistentController.index == 1) setState(() {});
-    // });
+
     return Scaffold(
       backgroundColor: AppColors.whiteColor,
       body: DefaultTabController(

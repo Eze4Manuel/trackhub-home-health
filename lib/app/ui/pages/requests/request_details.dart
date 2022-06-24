@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:trackhub_home_health/app/controller/base_controller.dart';
@@ -30,8 +32,18 @@ class _RequestDetailState extends State<RequestDetail> {
     super.initState();
   }
 
+  int roundDoubleToTens(int val){
+    int tens = val.toString().split('').length;
+    int multiplier = pow(10, tens - 1).toInt();
+    int total = (val / multiplier).ceil() * multiplier;
+    return total ;
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+
     final DateTime assignedDate = DateTime.now();
     return Container(
       child: Padding(
@@ -162,17 +174,50 @@ class _RequestDetailState extends State<RequestDetail> {
               SizedBox(
                 height: DeviceUtils.getScaledHeight(context, scale: 0.01),
               ),
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '${1200}',
-                  style: TextStyle(
+                  'N ${BaseController.logistics.isEmpty ? '' : roundDoubleToTens(double.parse(BaseController.logistics['cost']['value'].toString()).ceil()) }',
+                  style: const TextStyle(
                     fontWeight: FontWeight.w400,
-                    fontSize: 13,
-                    fontFamily: 'Montserrat SemiBold',
+                    fontSize: 16,
+                    fontFamily: 'Montserrat ExtraBold',
                     color: AppColors.appPrimaryColor,
                   ),
                   textAlign: TextAlign.left,
+                ),
+              ),
+              SizedBox(
+                height: DeviceUtils.getScaledHeight(context, scale: 0.01),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    Text(
+                      '${BaseController.logistics.isEmpty ? '' : BaseController.logistics['duration']['text']}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        fontFamily: 'Montserrat ExtraBold',
+                        color: AppColors.appPrimaryColor,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                    const SizedBox(
+                      width: 15,
+                    ),
+                    Text(
+                      '${ BaseController.logistics.isEmpty ? '' : (BaseController.logistics['distance']['value'] / 1000).toDouble().toStringAsFixed(2) } Km',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        fontFamily: 'Montserrat ExtraBold',
+                        color: AppColors.appPrimaryColor,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ],
                 ),
               ),
               SizedBox(
@@ -195,8 +240,18 @@ class _RequestDetailState extends State<RequestDetail> {
               ),
               Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'N ${BaseController.testOrders.isNotEmpty ? BaseController.testOrders.map((e) => double.parse(e['testPrices']['price'])).reduce((value, element) => value + element) + 1200 : 0}',
+                child: BaseController.testOrders.isNotEmpty ? Text(
+                  'N ${BaseController.testOrders.isNotEmpty && BaseController.logistics.isNotEmpty ? (BaseController.testOrders.map((e) => double.parse(e['testPrices']['price'])).reduce((value, element) => value + element) + roundDoubleToTens( BaseController.logistics['cost']['value'].ceil())).toStringAsFixed(2) : 0}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 25,
+                    fontFamily: 'Montserrat ExtraBold',
+                    color: AppColors.appColor0,
+                  ),
+                  textAlign: TextAlign.left,
+                ) :
+                Text(
+                  'N ${BaseController.logistics.isNotEmpty ? roundDoubleToTens(BaseController.logistics['cost']['value'].ceil()) : '0'}',
                   style: const TextStyle(
                     fontWeight: FontWeight.w400,
                     fontSize: 25,
@@ -211,19 +266,20 @@ class _RequestDetailState extends State<RequestDetail> {
               ),
               GestureDetector(
                 onTap: () async {
-                  setState(() {
+                  if(BaseController.testOrders.isNotEmpty){
+                    BaseController.totalCost = (BaseController.testOrders.map((e) => double.parse(e['testPrices']['price'])).reduce((value, element) => value + element) + roundDoubleToTens(BaseController.logistics['cost']['value'].ceil()));
+                  }else{
+                    BaseController.totalCost = double.parse(roundDoubleToTens( BaseController.logistics['cost']['value'].ceil()).toString());
+                  }
+                   setState(() {
                     submitting = true;
                   });
-                  BaseController.totalCost = BaseController
-                          .testOrders.isNotEmpty
-                      ? BaseController.testOrders
-                          .map((e) => double.parse(e['testPrices']['price']))
-                          .reduce((value, element) => value + element)
-                      : 0;
-                  if (await dashboardController.pendingPayment()) {
+
+                   if (await dashboardController.pendingPayment()) {
                     setState(() {
                       submitting = false;
                     });
+
                     Navigator.of(context)
                         .pushReplacement(MaterialPageRoute(
                             builder: (context) => const CardPayment()))
@@ -320,14 +376,36 @@ Widget testBlock(context, index) {
         ),
         Align(
           alignment: Alignment.centerLeft,
-          child: Text(
-            '${BaseController.testOrders[index]['name']}',
-            style: const TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: 16,
-                fontFamily: 'Montserrat Bold',
-                color: AppColors.appPrimaryColor),
-            textAlign: TextAlign.left,
+          child: Row(
+            children: [
+              Text(
+                '${BaseController.testOrders[index]['specimen']}',
+                style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                    fontFamily: 'Montserrat Bold',
+                    color: AppColors.appPrimaryColor),
+                textAlign: TextAlign.left,
+              ),
+              const Text(
+                ' - ',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                    fontFamily: 'Montserrat Bold',
+                    color: AppColors.appPrimaryColor),
+                textAlign: TextAlign.left,
+              ),
+              Text(
+                '${BaseController.testOrders[index]['name']}',
+                style: const TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                    fontFamily: 'Montserrat Bold',
+                    color: AppColors.appPrimaryColor),
+                textAlign: TextAlign.left,
+              ),
+            ],
           ),
         ),
         SizedBox(
